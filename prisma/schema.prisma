@@ -8,26 +8,23 @@ datasource db {
 }
 
 model User {
-  id         String    @id @unique @default(cuid())
+  id         String   @id @unique @default(cuid())
   firstName  String
   lastName   String
-  email      String    @unique
+  email      String   @unique
   password   String?
   phone      String?
   profile    String?
-  role       Role      @default(CUSTOMER)
-  isVerified Boolean   @default(false)
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  Customer   Customer?
-  Staff      Staff?
+  role       Role     @default(USER)
+  isVerified Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
   OTP        Otp?
 }
 
 enum Role {
   ADMIN
-  STAFF
-  CUSTOMER
+  USER
 }
 
 model Otp {
@@ -37,135 +34,4 @@ model Otp {
   code      String
   expiresAt DateTime
   createdAt DateTime @default(now())
-}
-
-model Customer {
-  id        Int       @id @default(autoincrement())
-  userId    String    @unique
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bookings  Booking[]
-  payments  Payment[]
-  reviews   Review[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-}
-
-model Staff {
-  id        Int      @id @default(autoincrement())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  hotelId   Int
-  hotel     Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Hotel {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  address     String
-  city        String
-  country     String
-  phone       String
-  email       String
-  rating      Float?
-  rooms       Room[]
-  staff       Staff[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  reviews     Review[]
-}
-
-model Room {
-  id            Int             @id @default(autoincrement())
-  roomNumber    String
-  type          String
-  price         Float
-  status        Satus           @default(AVAILABLE)
-  hotelId       Int
-  hotel         Hotel           @relation(fields: [hotelId], references: [id], onDelete: Cascade)
-  bookings      Booking[]
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  amenity       Amenity?        @relation(fields: [amenityId], references: [id], onDelete: SetNull)
-  amenityId     Int?
-  roomAmenities RoomAmenities[]
-
-  @@unique([hotelId, roomNumber])
-}
-
-enum Satus {
-  AVAILABLE
-  BOOKED
-  OCCUPIED
-}
-
-model Booking {
-  id         Int      @id @default(autoincrement())
-  checkIn    DateTime
-  checkOut   DateTime
-  status     String
-  customerId Int
-  roomId     Int
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  room       Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  payment    Payment?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model Payment {
-  id          Int           @id @default(autoincrement())
-  amount      Float
-  paymentDate DateTime      @default(now())
-  method      PaymentMethod @default(DEBIT_CARD)
-  status      PaymentStatus @default(PENDING)
-  bookingId   Int           @unique
-  customerId  Int
-  booking     Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  customer    Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
-}
-
-enum PaymentStatus {
-  PENDING
-  PAID
-  FAILED
-}
-
-enum PaymentMethod {
-  CREDIT_CARD
-  DEBIT_CARD
-  PAYPAL
-  BANK_TRANSFER
-  WALLET
-  CASH
-}
-
-model Review {
-  id         Int      @id @default(autoincrement())
-  rating     Int
-  comment    String?
-  customerId Int
-  hotelId    Int
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  hotel      Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model Amenity {
-  id            Int             @id @default(autoincrement())
-  name          String          @unique
-  rooms         Room[]
-  roomAmenities RoomAmenities[]
-}
-
-model RoomAmenities {
-  roomId    Int
-  amenityId Int
-  room      Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  amenity   Amenity @relation(fields: [amenityId], references: [id], onDelete: Cascade)
-
-  @@id([roomId, amenityId])
 }
