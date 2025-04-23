@@ -1,13 +1,11 @@
 export class CreateAuthDto {}
 
 export type SignUpDto = {
-  firstName: string;
-  lastName: string;
+  username: string;
   email: string;
   password: string;
   phone?: string;
   role?: string;
-  hotelId?: number;
 };
 
 export type LoginDto = {

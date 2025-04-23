@@ -31,7 +31,7 @@ export class OauthService {
         auth.email,
         auth.picture,
       );
-      await this.userRepository.createCustomer(user.id);
+
       await this.userRepository.verifyUser(user.email);
     }
 

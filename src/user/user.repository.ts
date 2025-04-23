@@ -6,11 +6,10 @@ import { Prisma } from '@prisma/client';
 export class UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createUser(firstName, lastName, email, password, phone, role) {
+  async createUser(username, email, password, phone, role) {
     const user = await this.prisma.user.create({
       data: {
-        firstName,
-        lastName,
+        username,
         email,
         password, // Ensure to hash the password in production
         phone,
@@ -23,32 +22,14 @@ export class UserRepository {
   async createUserOauth(firstName, lastName, email, profile) {
     const user = await this.prisma.user.create({
       data: {
-        firstName,
-        lastName,
+        username: `${firstName} ${lastName}`, // Combine firstName and lastName to create a username
         email,
         profile,
       },
     });
     return user;
   }
-  async createCustomer(userId) {
-    const profile = await this.prisma.customer.create({
-      data: {
-        userId: userId,
-      },
-    });
-    return profile;
-  }
 
-  async createStaff(userId, hotelId) {
-    const profile = await this.prisma.staff.create({
-      data: {
-        userId: userId,
-        hotelId: hotelId,
-      },
-    });
-    return profile;
-  }
   async findUserByEmail(email: string) {
     const user = await this.prisma.user.findUnique({
       where: {
@@ -64,8 +45,7 @@ export class UserRepository {
       },
       select: {
         id: true,
-        firstName: true,
-        lastName: true,
+        username: true,
         email: true,
         phone: true,
         role: true,
@@ -82,8 +62,7 @@ export class UserRepository {
       },
       select: {
         id: true,
-        firstName: true,
-        lastName: true,
+        username: true,
         email: true,
         password: true,
         profile: true,
@@ -106,8 +85,7 @@ export class UserRepository {
       where: { id },
       select: {
         id: true,
-        firstName: true,
-        lastName: true,
+        username: true,
         email: true,
         password: true,
         phone: true,
