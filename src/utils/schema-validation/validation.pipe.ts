@@ -1,22 +1,22 @@
-import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
-import { ObjectSchema } from 'joi';
+import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
+import { ZodError, ZodSchema } from 'zod';
 
 @Injectable()
-export class JoiValidationPipe implements PipeTransform {
-  constructor(private schema: ObjectSchema) {}
+export class ZodPipe implements PipeTransform<any> {
+  constructor(private schema: ZodSchema) {}
 
-  transform(value: any) {
-    const { error, value: validatedValue } = this.schema.validate(value, {
-      abortEarly: false, // Show all validation errors
-      stripUnknown: true, // Remove unknown fields
-    });
-
-    if (error) {
-      throw new BadRequestException(
-        error.details.map((err) => err.message).join(', '),
-      );
+  transform(value: unknown) {
+    try {
+      const parsedValue = this.schema.parse(value);
+      return parsedValue;
+    } catch (err) {
+      if (err instanceof ZodError) {
+        const errorMessages: string[] = [];
+        for (let i = 0; i < err.errors.length; i++) {
+          errorMessages.push(err.errors[i].message);
+        }
+        throw new BadRequestException(errorMessages);
+      }
     }
-
-    return validatedValue;
   }
 }

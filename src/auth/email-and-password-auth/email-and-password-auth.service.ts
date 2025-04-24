@@ -1,5 +1,4 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
-import { LoginDto, OTPDto, ResendDto, SignUpDto } from './dto/auth.dto';
 import { UserRepository } from 'src/user/user.repository';
 import { JwtService } from '@nestjs/jwt';
 import {
@@ -8,6 +7,12 @@ import {
 } from 'src/utils/helper-functions/encryption';
 import { OtpService } from 'src/otp/otp.service';
 import { MailService } from 'src/infra/mail/mail.service';
+import {
+  CreateLoginDto,
+  CreateOTPDto,
+  CreateSignupDto,
+  ResendOTPDto,
+} from './validation';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +22,7 @@ export class AuthService {
     private otp: OtpService,
     private mailService: MailService,
   ) {}
-  async signup(dto: SignUpDto) {
+  async signup(dto: CreateSignupDto) {
     //this is use to signup a new user nad based on the role of the user it makes them a customer,staff or admin
     let existingUser = await this.userRespository.findUserByEmail(dto.email);
     if (existingUser) {
@@ -39,7 +44,7 @@ export class AuthService {
     const otp = await this.otp.generateOTP(user.email);
 
     const data = {
-      subject: 'InnkeeperPro validation',
+      subject: 'Template validation',
       username: user.username,
       OTP: otp,
     };
@@ -63,7 +68,7 @@ export class AuthService {
     };
   }
 
-  async login(dto: LoginDto) {
+  async login(dto: CreateLoginDto) {
     const user = await this.userRespository.findUserByEmail(dto.email);
     if (!user) {
       return {
@@ -100,7 +105,7 @@ export class AuthService {
     };
   }
 
-  async validateOTP(dto: OTPDto) {
+  async validateOTP(dto: CreateOTPDto) {
     const user = await this.userRespository.findUserByEmail(dto.email);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -119,7 +124,7 @@ export class AuthService {
     };
   }
 
-  async resendOTP(dto: ResendDto) {
+  async resendOTP(dto: ResendOTPDto) {
     const user = await this.userRespository.findUserByEmail(dto.email);
     if (!user) {
       return {

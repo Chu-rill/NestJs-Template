@@ -33,8 +33,7 @@ export class AdminGuard implements CanActivate {
         },
         select: {
           id: true,
-          firstName: true,
-          lastName: true,
+          username: true,
           email: true,
           phone: true,
           role: true,
